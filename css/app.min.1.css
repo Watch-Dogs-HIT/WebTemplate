@@ -1322,7 +1322,7 @@ html {
 }
 
 body {
-	font-family: roboto;
+	font-family: SourceCodePro;
 	font-size: 13px;
 	line-height: 1.42857143;
 	color: #5e5e5e;
@@ -1330,7 +1330,7 @@ body {
 }
 
 input, button, select, textarea {
-	font-family: inherit;
+	font-family: SourceCodePro;
 	font-size: inherit;
 	line-height: inherit
 }
@@ -13671,7 +13671,7 @@ body.login-content:before {
 	left: 0;
 	background: #00bcd4;
 	content: "";
-	z-index: 0
+	z-index: -1
 }
 
 #profile-main {
@@ -14043,9 +14043,9 @@ h1.lean {
 	text-align: center;
 	letter-spacing: -0.05em;
 	line-height: 20px;
-	/*margin:30px 0px 10px;*/
-	margin-bottom: 10px;
-	font-family: monospace;
+	margin-top: 18px;
+	margin-bottom: 20px;
+	font-family: AGENCYR;
 }
 
 h1.lean:before, h1.lean:after {
@@ -14076,14 +14076,46 @@ h1.lean:before {
 	left: 0px;
 }
 
+#logo{
+	z-index: 10;
+	position: absolute;
+	top: 100px;
+	left: 50%;
+	transform: translateX(-50%)
+}
+
+#logo_pic{
+	height:150px;
+	width:150px;
+	z-index: 10;
+	position: relative;
+	border-radius:13px
+}
+#logo_text
+{
+	color: rgb(50, 50, 50);
+	text-align: center;
+	font-family: msyh;
+	font-size: 33px;
+}
+
+#credit{
+	position: absolute;
+	width: 100%;
+	bottom: 13px;
+}
+
+#credit_text{
+	margin: 0 auto;
+}
+
 @font-face {
 	font-family: AGENCYR;
-	/*为引入的字体命名*/
-	src: url(../fonts/AGENCYR.TTF);
-	/*定义要引入字体文件的路径*/
-	font-family: SourceCodePro;
-	src: url(../fonts/SourceCodePro-Regular_3.ttf);
-	font-family: msyh;
-	src: url(../fonts/SourceCodePro-Regular_3.ttc);
+	src: url(fonts/AGENCYR.TTF);
 
+	font-family: SourceCodePro;
+	src: url(fonts/SourceCodePro-Regular_3.ttf);
+
+	font-family: msyh;
+	src: url(fonts/SourceCodePro-Regular_3.ttc);
 }

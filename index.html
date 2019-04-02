@@ -13,12 +13,13 @@
 </head>
 
 <body class="login-content" data-ng-controller="loginCtrl as lctrl">
+	<div id="logo">
+	  <img src="Watch_Dogs.jfif" alt="Watch_Dogs logo" id="logo_pic">
+	  <h1 id="logo_text">Linux远程主机及进程状态监测系统</h1>
+	</div>
 	
 	<div class="lc-block" id="l-login" data-ng-class="{'toggled':lctrl.login === 1}">
-
-		<!-- <img src="Watch_Dogs.jfif" alt="Watch_Dogs logo" height="200px" width="200px"> -->
-		<h1 class="lean">Watch_Dogs</h1>
-
+		<h1 class="lean">Watch  Dogs</h1>
 		<div class="input-group m-b-20">
 			<span class="input-group-addon">
 				<i class="zmdi zmdi-account"></i>
@@ -43,7 +44,7 @@
 			<label>
 				<input type="checkbox" value="" />
 				<i class="input-helper">
-					保持登录
+					Keep login
 				</i>
 			</label>
 		</div>
@@ -54,14 +55,12 @@
 
 		<ul class="login-navigation">
 			<li class="bgm-red" data-ng-click="lctrl.login = 0; lctrl.register = 1">Register</li>
-			<li data-block="#l-forget-password" class="bgm-orange" data-ng-click="lctrl.login = 0; lctrl.forgot = 1">Forgot
-				Password?</li>
 		</ul>
 	</div>
 
 	<div class="lc-block" id="l-register" data-ng-class="{ 'toggled': lctrl.register === 1 }"
 		data-ng-if="lctrl.register === 1">
-		<h1 class="lean">Azrael</h1>
+		<h1 class="lean">Watch  Dogs</h1>
 
 		<div class="input-group m-b-20">
 			<span class="input-group-addon">
@@ -74,63 +73,26 @@
 
 		<div class="input-group m-b-20">
 			<span class="input-group-addon">
-				<i class="zmdi zmdi-email"></i>
-			</span>
-			<div class="fg-line">
-				<input type="text" class="form-control" placeholder="Email Address"
-					regex="^\w+@\w+\.[a-zA-Z]+(\.[a-zA-Z]+)?$" />
-			</div>
-		</div>
-
-		<div class="input-group m-b-20">
-			<span class="input-group-addon">
 				<i class="zmdi zmdi-male"></i>
 			</span>
 			<div class="fg-line">
 				<input type="password" class="form-control" placeholder="Password" regex="^\w+" />
 			</div>
-
 		</div>
 
 		<div class="clearfix"></div>
-
-		<div class="checkbox">
-			<label>
-				<input type="checkbox" value="" />
-				<i class="input-helper"></i>
-				接受许可协议
-			</label>
-		</div>
 
 		<a href="" class="btn btn-login btn-danger btn-float"><i class="zmdi zmdi-arrow-forward"></i></a>
 
 		<ul class="login-navigation">
 			<li data-block="#l-login" class="bgm-green" data-ng-click="lctrl.register = 0; lctrl.login = 1">Login</li>
-			<li data-block="#l-forget-password" class="bgm-orange" data-ng-click="lctrl.register = 0; lctrl.forgot = 1">Forgot
-				Password?</li>
 		</ul>
 	</div>
 
-	<div class="lc-block" id="l-forget-password" data-ng-class="{ 'toggled': lctrl.forgot === 1 }"
-		data-ng-if="lctrl.forgot === 1">
-		<h1 class="lean">Azrael</h1>
-		<p class="text-left">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu risus. Curabitur commodo
-			lorem fringilla enim feugiat commodo sed ac lacus.</p>
-		<div class="input-group m-b-20">
-			<span class="input-group-addon"><i class="zmdi zmdi-email"></i></span>
-			<div class="fg-line">
-				<input type="text" class="form-control" placeholder="Email Address"
-					regex="^\w+@\w+\.[a-zA-Z]+(\.[a-zA-Z]+)?$" />
-			</div>
-		</div>
-
-		<a href="" class="btn btn-login btn-danger btn-float"><i class="zmdi zmdi-arrow-forward"></i></a>
-
-		<ul class="login-navigation">
-			<li data-block="#l-login" class="bgm-green" data-ng-click="lctrl.forgot = 0; lctrl.login = 1">Login</li>
-			<li data-block="#l-register" class="bgm-red" data-ng-click="lctrl.forgot = 0; lctrl.register = 1">Register</li>
-		</ul>
+	<div id="credit">
+		<p id="credit_text">© 2019 <a href="https://github.com/h-j-13">h-j-13.</a></p>
 	</div>
+	
 </body>
 
 <script src="js/bower_components/jquery/dist/jquery.min.js"></script>
