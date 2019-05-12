@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en" class="login-content" data-ng-app="materialAdmin">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Linux远程主机及进程状态监测系统</title>
+    <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
+    <!-- Vendor CSS -->
+    <link href="../static/css/material-design-iconic-font/css/material-design-iconic-font.min.css" rel="stylesheet"
+          type="text/css">
+    <!-- CSS -->
+    <link href="../static/css/login.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="login-content" data-ng-controller="loginCtrl as lctrl">
+<div id="logo">
+    <img src="../static/Watch_Dogs.jfif" alt="Watch_Dogs logo" id="logo_pic">
+    <h1 id="logo_text">Linux远程主机及进程状态监测系统</h1>
+</div>
+
+<div class="lc-block" id="l-login" data-ng-class="{'toggled':lctrl.login === 1}">
+    <h1 class="lean">Watch Dogs</h1>
+    <div class="input-group m-b-20">
+			<span class="input-group-addon">
+				<i class="zmdi zmdi-account"></i>
+			</span>
+        <div class="fg-line">
+            <input type="text" id=user class="form-control" placeholder="Username" regex="^\w{3,16}$"/>
+        </div>
+    </div>
+
+    <div class="input-group m-b-20">
+			<span class="input-group-addon">
+				<i class="zmdi zmdi-male"></i>
+			</span>
+        <div class="fg-line">
+            <input type="password" id=password class="form-control" placeholder="Password" regex="^\w+"/>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" value=""/>
+            <i class="input-helper">
+                Keep login
+            </i>
+        </label>
+    </div>
+    <p style="font-size:16px;color:red;display:none" id="login_msg">TEST:msg</p>
+
+
+    <a href="" class="btn btn-login btn-danger btn-float" id="login_btn">
+        <i class="zmdi zmdi-arrow-forward"></i>
+    </a>
+
+    <ul class="login-navigation">
+        <li class="bgm-red" data-ng-click="lctrl.login = 0; lctrl.register = 1">Register</li>
+    </ul>
+</div>
+
+<div class="lc-block" id="l-register" data-ng-class="{ 'toggled': lctrl.register === 1 }"
+     data-ng-if="lctrl.register === 1">
+    <h1 class="lean">Watch Dogs</h1>
+
+    <div class="input-group m-b-20">
+			<span class="input-group-addon">
+				<i class="zmdi zmdi-account"></i>
+			</span>
+        <div class="fg-line">
+            <input type="text" id="register_user" class="form-control" placeholder="登录用户名" regex="^\w{3,16}$"/>
+        </div>
+    </div>
+    <div class="input-group m-b-20">
+			<span class="input-group-addon">
+				<i class="zmdi zmdi-email"></i>
+			</span>
+        <div class="fg-line">
+            <input type="text" id="register_email" class="form-control" placeholder="邮件地址,用于接受预警邮件"
+                   regex="^\w+@\w+\.[a-zA-Z]+(\.[a-zA-Z]+)?$"/>
+        </div>
+    </div>
+    <div class="input-group m-b-20">
+			<span class="input-group-addon">
+				<i class="zmdi zmdi-male"></i>
+			</span>
+        <div class="fg-line">
+            <input type="password" id="register_password" class="form-control" placeholder="登陆密码" regex="^\w+"/>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" value=""/>
+            <i class="input-helper"></i>
+            接受 <a href="https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server/blob/master/LICENSE">许可协议</a>
+        </label>
+    </div>
+
+    <p style="font-size:16px;color:red;display:none" id="register_msg">TEST:msg</p>
+
+    <a href="" class="btn btn-login btn-danger btn-float" id="register_btn" onclick="register();">
+        <i class="zmdi zmdi-arrow-forward"></i>
+    </a>
+
+    <ul class="login-navigation">
+        <li data-block="#l-login" class="bgm-green" data-ng-click="lctrl.register = 0; lctrl.login = 1">Login</li>
+    </ul>
+</div>
+
+<div id="credit">
+    <p id="credit_text">© 2019 <a href="https://github.com/h-j-13">h-j-13.</a></p>
+</div>
+
+<!--JQuery-->
+<script src="../static/js/jquery-3.4.0.js"></script>
+<script>
+    // 登录
+    $("#login_btn").click(function () {
+        $("#login_msg").hide();
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/login" + window.location.search,
+            data: JSON.stringify({
+                user: $("#user").val(),
+                password: $("#password").val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res["login"]) { // 登录并跳转
+                    $(window).attr('location', res["next_url"]);
+                } else { // 显示错误
+                    $("#login_msg").text("错误 : " + res["msg"]);
+                    $("#login_msg").fadeIn("slow");
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 注册
+    // todo : 改成上面的方法无法响应?
+    function register() {
+        $("#register_msg").hide();
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/user",
+            data: JSON.stringify({
+                user: $("#register_user").val(),
+                password: $("#register_password").val(),
+                email: $("#register_email").val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res["register"]) {
+                    $("#register_msg").css("color", "green");
+                    $("#register_msg").text("注册成功, 请从下方切换至登录页面");
+                    $("#register_msg").fadeIn("slow");
+                } else {
+                    $("#register_msg").css("color", "red");
+                    $("#register_msg").text("错误 : " + res["msg"]);
+                    $("#register_msg").fadeIn("slow");
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
+
+
+</script>
+
+</body>
+
+<script src="../static/js/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../static/js/log.js"></script>
+<!-- Angular -->
+<script src="../static/js/bower_components/angular/angular.min.js"></script>
+<script src="../static/js/bower_components/angular-resource/angular-resource.min.js"></script>
+<script src="../static/js/bower_components/angular-animate/angular-animate.min.js"></script>
+
+
+<!-- Angular Modules -->
+<script src="../static/js/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+<script src="../static/js/bower_components/angular-loading-bar/src/loading-bar.js"></script>
+<script src="../static/js/bower_components/oclazyload/dist/ocLazyLoad.min.js"></script>
+<script src="../static/js/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+<!-- Common js -->
+<script src="../static/js/bower_components/angular-nouislider/src/nouislider.min.js"></script>
+<script src="../static/js/bower_components/ng-table/dist/ng-table.min.js"></script>
+
+<!-- Placeholder for IE9 -->
+<!--[if IE 9 ]>
+<script src="../static/js/bower_components/jquery-placeholder/jquery.placeholder.min.js"></script>
+<![endif]-->
+<!-- App level -->
+<script src="../static/js/app.js"></script>
+<script src="../static/js/controllers/main.js"></script>
+<script src="../static/js/controllers/ui-bootstrap.js"></script>
+
+
+<!-- Template Modules -->
+<script src="../static/js/modules/form.js"></script>
+
+</html>
