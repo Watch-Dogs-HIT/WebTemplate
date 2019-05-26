@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>进程监控</title>
+    <!--logo-->
+    <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
+    <!-- Bootstrap Styles-->
+    <link href="../static/css/bootstrap.css" rel="stylesheet"/>
+    <!-- FontAwesome Styles-->
+    <link href="../static/css/font-awesome.css" rel="stylesheet"/>
+    <!-- Custom Styles-->
+    <link href="../static/css/custom-styles.css" rel="stylesheet"/>
+    <link href="../static/js/morris/morris-0.4.3.min.css" rel="stylesheet"/>
+    <!-- 引入 ECharts 文件 -->
+    <script src="../static/js/echarts.min.js"></script>
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <!-- cssfx -->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
+</head>
+
+<body>
+<div id="wrapper">
+    <nav class="navbar navbar-default top-navbar" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><i class="fa fa-dashboard"></i> <strong>Watch_Dogs</strong></a>
+        </div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                    <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="/user#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    </li>
+                    <li><a href="/user#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="#" id="logout_btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    </li>
+                </ul>
+                <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+        </ul>
+    </nav>
+    <!--/. NAV TOP  -->
+    <nav class="navbar-default navbar-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav" id="main-menu">
+                <li>
+                    <a href="/"><i class="fa fa-dashboard"></i>总览</a>
+                </li>
+                <li>
+                    <a href="/host"><i class="fa fa-desktop"></i>主机监控</a>
+                </li>
+                <li>
+                    <a href="/process"><i class="fa fa-bar-chart-o"></i>进程监控</a>
+                </li>
+                <li>
+                    <a href="/alert"><i class="fa fa-edit"></i>监控预警</a>
+                </li>
+                <li>
+                    <a href="/user"><i class="fa fa-table"></i>用户管理</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- /. NAV SIDE  -->
+    <div id="page-wrapper">
+        <h1 class="page-header"><span class="res_div_title">进程监控</span>
+            <small>远程Linux主机进程监控及管理</small>
+        </h1>
+        <div id="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="btn-group">
+                                <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"
+                                        aria-expanded="false" id="process_select_btn">1<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" id="process_select_id">
+                                </ul>
+                            </div>
+                            &nbsp;
+                            <a href="#" class="btn btn-danger" id="delete_process_btn">不再关注进程</a>
+                        </div>
+                        <div class="panel-body">
+                            <div id="process_state" class="alert alert-success">
+                                default massage
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4><span class="res_div_title">进程占用资源</span></h4>
+                                        </div>
+                                        <div class="panel-body">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a class="proc_res_title" href="#CPU"
+                                                                      data-toggle="tab">CPU</a>
+                                                </li>
+                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">Memory</a>
+                                                </li>
+                                                <li class=""><a class="proc_res_title" href="#Net"
+                                                                data-toggle="tab">Net</a>
+                                                </li>
+                                                <li class=""><a class="proc_res_title" href="#Disk" data-toggle="tab">Disk</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade active in" id="CPU">
+                                                    <div id="cpu_graph" style="width: 1000px;height:450px;"></div>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Memory">
+                                                    <div id="mem_graph" style="width: 1000px;height:450px;"></div>
+                                                    <p>总内存大小 : <span id="mem_max_size">1</span> MB</p>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Net">
+                                                    <div id="net_graph" style="width: 1000px;height:450px;"></div>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Disk">
+                                                    <div id="io_graph" style="width: 1000px;height:450px;"></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <span class="res_div_title">进程信息</span>
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <h4><span class="res_div_title">进程详细信息</span></h4>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>所在主机</td>
+                                                        <td id="host" style="width:75%">0.0.0.0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程号</td>
+                                                        <td id="pid">pid</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>名称</td>
+                                                        <td id="comm">comm</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>状态</td>
+                                                        <td id="state">S</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>命令</td>
+                                                        <td id="cmdline">cmdline</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>父进程号</td>
+                                                        <td id="ppid">ppid</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程组号</td>
+                                                        <td id="pgrp">pgrp</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>线程数</td>
+                                                        <td id="thead_num">thead_num</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>执行地址</td>
+                                                        <td id="pwdx">pwdx</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>日志地址</td>
+                                                        <td id="log_path">log_path</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程类型</td>
+                                                        <td id="type">type</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程备注</td>
+                                                        <td id="comment">comment</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" id="log_div">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4><span class="res_div_title">进程日志监控</span></h4>
+                                            <div class="form-group input-group" style="display:flex">
+                                                <button class="btn btn-default" id="log_refresh"><i
+                                                        class="fa fa-refresh"
+                                                ></i> 刷新
+                                                </button>
+                                                &nbsp;&nbsp;&nbsp;
+                                                <input type="text" class="form-control" style="width: 500px"
+                                                       placeholder="搜索最近1000行中所有包含关键词的内容" id="log_search_word">
+                                                <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" id="log_search_btn"><i
+                                                        class="fa fa-search"></i>
+                                                </button>
+                                            </span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading" id="log_head">
+                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;<span
+                                                        id="log_help">中最近100行的内容</span>
+                                                    <span style="float:right;text-align:right"><span
+                                                            id="log_size">0.0</span>&nbsp;KB</span>
+                                                </div>
+                                                <div class="panel-body" id="log_text"
+                                                     style="overflow-y:scroll;height:500px;width:100%;overflow-x:hidden;word-break:break-all">
+                                                </div>
+                                                <div class="panel-footer" id="log_footer">
+                                                    日志文件最后更新于&nbsp;&nbsp;<span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="pull-right" style="margin-right:20px">&nbsp;&nbsp;进程监控信息生成于&nbsp;<span
+                                    id="record_time">YYYY-MM-DD HH:mm:SS</span></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4><span class="res_div_title">进程管理</span></h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <span class="res_div_title">更新进程信息</span>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;<span
+                                            id="current_process">CURRENT_PROCESS</span>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <label for="process_pid_for_update">新进程号</label>
+                                            <input id="process_pid_for_update" class="form-control"
+                                                   placeholder="[重要] 如果之前的进程重启或关闭过,则可以从这里更新成当前最新的进程号即可继续监控">
+                                            <br/>
+                                            <label for="process_type">进程类型</label>
+                                            <input id="process_type" class="form-control"
+                                                   placeholder="current_process_type">
+                                            <br/>
+                                            <label for="process_comment">进程备注</label>
+                                            <input id="process_comment" class="form-control"
+                                                   placeholder="current_process_comment">
+                                            <br/>
+                                            <label for="process_log_path">进程日志地址</label>
+                                            <input id="process_log_path" class="form-control"
+                                                   placeholder="process_log_path">
+                                            <br/>
+                                            <label for="process_path">进程所在路径</label>
+                                            <input id="process_path" class="form-control" placeholder="process_path">
+                                            <br/>
+                                            <label for="process_start_com">进程启动命令</label>
+                                            <input id="process_start_com" class="form-control"
+                                                   placeholder="process_start_com">
+                                            <br/>
+                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i
+                                                    class="fa fa-edit "></i>&nbsp;更新信息
+                                            </button>&nbsp;&nbsp;
+                                            <button id="process_close_btn" type="submit" class="btn btn-danger"><i
+                                                    class="fa fa-pencil"></i>&nbsp;结束该进程
+                                            </button>&nbsp;&nbsp;
+                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i
+                                                    class=" fa fa-refresh "></i>&nbsp;重启该进程
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <span class="res_div_title">远程主机信息</span>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <div class="form-group">
+                                                <label for="new_process_at_host">选择主机</label>
+                                                <select id="new_process_at_host" class="form-control"
+                                                        onchange="select_host()">
+                                                    <option>请在已经添加的主机中选择需要增加的进程所在的主机</option>
+                                                </select>
+                                            </div>
+                                            <label for="new_process">选择进程</label>
+                                            <input id="new_process" class="form-control" placeholder="可以输入关键词快速搜索"
+                                                   list="new_process_pid_list">
+                                            <datalist id="new_process_pid_list">new_process_pid_list
+                                            </datalist>
+                                            <br/>
+                                            <label for="new_process_type">进程类型</label>
+                                            <input id="new_process_type" class="form-control"
+                                                   placeholder="[可选] 描述一下进程具体的类型">
+                                            <br/>
+                                            <label for="new_process_comment">进程备注</label>
+                                            <input id="new_process_comment" class="form-control"
+                                                   placeholder="[可选] 为了便于查找，请给进程添加一个好记的备注">
+                                            <br/>
+                                            <label for="new_process_log_path">进程日志地址</label>
+                                            <input id="new_process_log_path" class="form-control"
+                                                   placeholder="[可选] 进程日志地址，如果有日志就可以在监控页面展示分析">
+                                            <br/>
+                                            <label for="new_process_path">进程所在路径</label>
+                                            <input id="new_process_path" class="form-control"
+                                                   placeholder="[可选] 进程所在路径，用于重启进程">
+                                            <br/>
+                                            <label for="new_process_start_com">进程启动命令</label>
+                                            <input id="new_process_start_com" class="form-control"
+                                                   placeholder="[可选] 进程完整启动命令，用于重启进程">
+                                            <br/>
+                                            <button id="add_process_btn" type="submit" class="btn btn-info">添加新进程
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+    <!-- /. PAGE WRAPPER  -->
+</div>
+
+
+<!-- /. WRAPPER  -->
+<!-- JS Scripts-->
+<!-- jQuery Js -->
+<script src="../static/js/jquery-1.10.2.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
+<!-- Metis Menu Js -->
+<script src="../static/js/jquery.metisMenu.js"></script>
+<!-- Bootstrap Js -->
+<script src="../static/js/bootstrap.min.js"></script>
+
+<!-- Custom Js -->
+<script src="../static/js/morris/raphael-2.1.0.min.js"></script>
+<script src="../static/js/morris/morris.js"></script>
+
+<!--<script src="../static/js/custom-scripts.js"></script>-->
+
+<!--页面逻辑-->
+<!--<script src="../static/js/jquery-3.4.0.js"></script>-->
+<script>
+    // 当前选择的进程id
+    let user_all_process_relation;
+    let current_process_id = -1;
+    let current_process_at_host_id = -1;
+    let selected_host_id_for_add_process = -1;
+
+    // 初始化页面
+    $(document).ready(function () {
+        // 处理#后面的process_id
+        let select_process_id = 0;
+        if (window.location.hash) {
+            select_process_id = parseInt(window.location.hash.split("#")[1]);
+        }
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/process/0",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                user_all_process_relation = res;
+                if (select_process_id) {// 选择了主机id
+                    for (let process_relation of res["relation"]) {
+                        if (process_relation["process_id"] === select_process_id) {
+                            $("#process_select_btn").text(process_relation["select_str"]);
+                            current_process_at_host_id = process_relation["host_id"];
+                            current_process_id = process_relation["process_id"];
+                        }
+                    }
+                } else {// 设置默认进程
+                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                    current_process_id = res["relation"][0]["process_id"];
+                    current_process_at_host_id = res["relation"][0]["host_id"];
+                }
+                // 添加选择进程按钮
+                for (let process_relation of res["relation"]) {
+                    $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
+                }
+                // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
+                if (current_process_id === -1) {
+                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                    current_process_id = res["relation"][0]["process_id"];
+                    current_process_at_host_id = res["relation"][0]["host_id"];
+                }
+
+                show_host_data(current_process_id);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+
+        init_add_process_at_host();
+    });
+
+    // 初始化ECharts图表数据结构
+    function init_echarts_graph_data(title) {
+        return {
+            title: {
+                text: title
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: []
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: [] // 时间
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: []
+        };
+    }
+
+    // 展示选中进程数据
+    function show_host_data(process_id) {
+        // 获取进程数据
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/process/" + process_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                // 状态提示框
+                if (res["process_info"]["state"] == "X") {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-danger");
+                    $("#process_state").text("[错误] 进程不存在, 进程可能崩溃了!");
+                } else if (res["process_info"]["state"] == "0") {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-warning");
+                    $("#process_state").text("[警告] 进程状态获取出现问题! 请检查远程客户端运行情况");
+                } else {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-success");
+                    $("#process_state").text("[OK] 当前进程运行情况良好.");
+                }
+
+                // 右侧配置数据
+                $("#host").text(res["host_info"]["intranet_ip"]);
+                $("#pid").text(res["process_info"]["pid"]);
+                $("#comm").text(res["process_info"]["comm"]);
+                $("#state").text(res["process_info"]["state"]);
+                $("#cmdline").text(res["process_info"]["cmdline"]);
+                $("#ppid").text(res["process_info"]["ppid"]);
+                $("#pgrp").text(res["process_info"]["pgrp"]);
+                $("#thead_num").text(res["process_info"]["thread_num"]);
+                $("#pwdx").text(res["process_info"]["process_path"]);
+                $("#log_path").text(res["process_info"]["log_path"]);
+                $("#type").text(res["relation"]["type"]);
+                $("#comment").text(res["relation"]["comment"]);
+                $("#uptime").text(res["process_info"]["uptime"]);
+
+                // 下方时间戳
+                $("#record_time").text(res["record_time"]);
+
+                // 左侧资源图表
+                // CPU
+                let cpu_table_option = init_echarts_graph_data("进程CPU占用率 %");
+                cpu_table_option.legend.data.push("CPU");
+                let cpu_data = {
+                    name: 'CPU',
+                    type: 'line',
+                    smooth: true,
+                    data: [] // cpu占用率
+                };
+                cpu_table_option.series.push(cpu_data);
+                for (let hi of res["process_records"]) {
+                    cpu_table_option.xAxis.data.unshift(hi["record_time"]); // X轴时间
+                    cpu_table_option.series[0].data.unshift(hi["cpu"]); // Y轴CPU占用率
+                }
+
+                // 绘图
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+
+                // 内存
+                let mem_table_option = init_echarts_graph_data("进程内存占用 M");
+                mem_table_option.legend.data.push("内存占用 M");
+                mem_table_option.series.push({
+                    name: '内存占用 M',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    mem_table_option.xAxis.data.unshift(hi["record_time"]); // X轴时间
+                    mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
+                }
+                // 绘图
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                // 内存下方文字
+                $("#mem_max_size").text(res["host_info"]["mem_M"]);
+
+                // net
+                let net_table_option = init_echarts_graph_data("主机网络使用情况 Kbps");
+                net_table_option.yAxis = {type: 'value'};
+                net_table_option.legend.data.push("上传速度");
+                net_table_option.legend.data.push("下载速度");
+                net_table_option.series.push({
+                    name: '上传速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                net_table_option.series.push({
+                    name: '下载速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    net_table_option.xAxis.data.unshift(hi["record_time"]);
+                    net_table_option.series[0].data.unshift(hi["net_upload_kbps"]);
+                    net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
+                }
+                // 绘图
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+
+                // 磁盘
+                let io_table_option = init_echarts_graph_data("主机磁盘读写 MB/s");
+                io_table_option.yAxis = {type: 'value'};
+                io_table_option.legend.data.push("读取速度");
+                io_table_option.legend.data.push("写入速度");
+                io_table_option.series.push({
+                    name: '读取速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                io_table_option.series.push({
+                    name: '写入速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    io_table_option.xAxis.data.unshift(hi["record_time"]);
+                    io_table_option.series[0].data.unshift(hi["read_MBs"]);
+                    io_table_option.series[1].data.unshift(hi["write_MBs"]);
+                }
+                // 绘图
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+
+                // 展示日志相关内容
+                show_process_log(current_process_at_host_id, res["process_info"]["log_path"])
+
+                // 更新信息
+                $("#current_process").text($("#process_select_btn").text());
+                $("#process_pid_for_update").attr('placeholder', res["process_info"]["pid"]);
+                $("#process_type").attr('placeholder', res["relation"]["type"]);
+                $("#process_comment").attr('placeholder', res["relation"]["comment"]);
+                $("#process_log_path").attr('placeholder', res["process_info"]["log_path"]);
+                $("#process_path").attr('placeholder', res["process_info"]["process_path"]);
+                $("#process_start_com").attr('placeholder', res["process_info"]["start_com"]);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
+
+    // 获取需要更新的数值
+    function get_vaule(input_element) {
+        if (input_element.val() !== "") {
+            return input_element.val()
+        } else {
+            if (input_element.attr('placeholder') === "暂无") {
+                return ""
+            } else {
+                return input_element.attr('placeholder');
+            }
+
+        }
+    }
+
+    // 获取进程日志
+    function show_process_log(host_id, path) {
+        if (path.indexOf("/") != -1) // 有日志地址,进行展示
+        {
+            $("#log_div").show();
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/log",
+                data: JSON.stringify({
+                    host_id: host_id,
+                    path: path
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    if (res.hasOwnProperty("error")) {
+                        console.log({
+                            host_id: host_id,
+                            path: path
+                        });
+                        $("#log_div").hide();
+                        alert("日志请求错误, 详细信息请查看控制台日志");
+                        console.log(res);
+                    } else {// 展示日志内容
+                        $("#log_help").text("  中最新100行的内容");
+                        if (res["exist"]) {
+                            $("#log_last_update_time").text(res["last_update_time"]);
+                            $("#log_full_path_name").text(path);
+                            $("#log_size").text(res["size_KB"]);
+                            $("#log_text").empty();
+                            for (let line of res["tail"]) {
+                                $("#log_text").append(line + "<br />")
+                            }
+
+                        } else {
+                            $("#log_div").hide();
+                            alert("没有在指定路径下找到该进程的日志文件,请登陆服务器进行检查");
+                            console.log(res);
+                        }
+                    }
+                },
+                error: function (msg) {
+                    alert("请求超时,请检查后台服务器状态");
+                    console.log(msg);
+                }
+            });
+        } else { // 无日志文件地址,隐藏div
+            $("#log_div").hide();
+        }
+    }
+
+    // 日志刷新按钮功能
+    $("#log_refresh").click(function () {
+        show_process_log(current_process_at_host_id, $("#log_path").text());
+    });
+
+    // 获取日志关键词
+    $("#log_search_btn").click(function () {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/log",
+            data: JSON.stringify({
+                host_id: current_process_at_host_id,
+                path: $("#log_path").text(),
+                key_word: $("#log_search_word").val()
+
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res.hasOwnProperty("error")) {
+                    $("#log_div").hide();
+                    alert("日志搜索请求错误, 详细信息请查看控制台日志");
+                    console.log(res);
+                } else {// 展示日志内容
+                    $("#log_text").empty();
+                    console.log("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
+                    $("#log_help").text("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
+                    for (let line of res["search_result"]) {
+                        $("#log_text").append(line + "<br />")
+                    }
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 获取选择进程id
+    $("#process_select_id").click(function (event) {
+        current_process_id = parseInt(event.target.innerHTML.split(" | ")[0].split("#")[1]);
+        for (let process_relation of user_all_process_relation["relation"]) {
+            if (current_process_id === process_relation["process_id"]) {// 修改选项文本及当前主机id
+                current_process_at_host_id = process_relation["host_id"];
+                $("#process_select_btn").text(process_relation["select_str"]);
+                break;
+            }
+        }
+        show_host_data(current_process_id);
+    });
+
+    // 初始化所有能添加进程的主机
+    function init_add_process_at_host() {
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/host/all",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                for (let host of res["relation"]) {
+                    $("#new_process_at_host").append("<option>" + host["select_str"] + "</option>")
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
+
+    // new_process_at_host select控件处理函数
+    function select_host() {
+        let selected_host_str = $("#new_process_at_host").find("option:selected").text();
+        if (selected_host_str.indexOf(":") !== -1) {// 选择了有效host
+            let select_host_id = selected_host_str.split(" : ")[0].split("#")[1];
+            selected_host_id_for_add_process = select_host_id;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/process/all",
+                data: JSON.stringify({host_id: select_host_id}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    $("#new_process_pid_list").empty();
+                    for (let pid in res) {
+                        $("#new_process_pid_list").append("<option value='" + pid + " | " + res[pid] + "'>");
+                    }
+                },
+                error: function (msg) {
+                    console.log(msg);
+                    alert("请求超时,请检查后台服务器状态");
+                }
+            });
+
+        } else {// 选择了无效host
+            selected_host_id_for_add_process = -1;
+            $("#new_process_pid_list").empty()
+        }
+    }
+
+    // 添加进程
+    $("#add_process_btn").click(function () {
+        if (selected_host_id_for_add_process === -1) {
+            alert("请选择有效的主机");
+        } else {
+            let selected_process_str = $("#new_process").val();
+            if (selected_process_str === "") {
+                alert("请选择需要监控的进程");
+            } else { // 添加逻辑
+                let request_json = {
+                    new_process_pid: selected_process_str.split(" | ")[0],
+                    new_process_at_host_id: selected_host_id_for_add_process,
+                    new_process_name: selected_process_str.split(" | ")[1],
+                    new_process_type: $("#new_process_type").val(),
+                    new_process_comment: $("#new_process_comment").val(),
+                    new_process_log_path: $("#new_process_log_path").val(),
+                    new_process_path: $("#new_process_path").val(),
+                    new_process_start_com: $("#new_process_start_com").val()
+                };
+                $.ajax({
+                    type: 'post',
+                    async: true,
+                    url: "/process",
+                    data: JSON.stringify(request_json),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (res) {
+                        if ("status" in res) {
+                            alert(res["status"]);
+                            setTimeout('window.location.reload()', 1000);
+                        } else {
+                            alert(res["error"])
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg);
+                        alert("请求超时,请检查后台服务器状态");
+                    }
+                });
+            }
+        }
+    });
+
+    // 删除进程
+    $("#delete_process_btn").click(function () {
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/process/" + current_process_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("删除成功, 页面将在1S后刷新");
+                setTimeout('window.location.reload()', 1000);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+            }
+        });
+    });
+
+    // 更新进程信息
+    $("#process_update_btn").click(function () {
+        let request_json = {
+            process_pid_for_update: get_vaule($("#process_pid_for_update")),
+            process_type: get_vaule($("#process_type")),
+            process_comment: get_vaule($("#process_comment")),
+            process_log_path: get_vaule($("#process_log_path")),
+            process_path: get_vaule($("#process_path")),
+            process_start_com: get_vaule($("#process_start_com")),
+            process_at_host_id: current_process_at_host_id
+        };
+        console.log(request_json);
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/process/" + current_process_id,
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 关闭进程
+    $("#process_restart_btn").click(function () {
+        alert("进程重启过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "restart"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 重启进程
+    $("#process_close_btn").click(function () {
+        alert("进程关闭过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "close"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 登出
+    $("#logout_btn").click(function () {
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/login",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $(window).attr('location', "/login");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+            }
+        });
+    });
+</script>
+</body>
+</html>

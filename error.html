@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="none"/>
+    <title>500 ERROR</title>
+    <!--logo-->
+    <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
+    <style>
+        * {
+            font-family: "Microsoft Yahei";
+            margin: 0;
+            font-weight: lighter;
+            text-decoration: none;
+            text-align: center;
+            line-height: 2.2em;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        h1 {
+            font-size: 200px;
+            line-height: 1.13em;
+        }
+
+        table {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+<table cellspacing="0" cellpadding="0">
+    <tr>
+        <td>
+            <table cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <h1>{{http_code}}</h1>
+                        <h3 style="background-color:black;color:red;font-size: 25px">/// ctOS ERROR! /// </h3>
+                        <p style="font-size: 20px"><strong>DedSec</strong> 正在入侵你的 <strong
+                                style="background-color:black;color: whitesmoke">ct</strong>OS !<br/>
+                            <a style="background-color:black;color: whitesmoke" href="/"> > return Home</a>
+                        </p>
+                        <p style="font-size: 25px"><span style="background-color:black;color: whitesmoke">ct</span>OS log:</p>
+                        <p style="font-size: 15px;color: #0d8aee;text-align:left">
+                            {% for i in error_message%}
+                            {% for j in xrange(35)%}
+                            &nbsp;
+                            {% end %}
+
+                            {{ i }} <br>
+                            {% end %}
+
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
