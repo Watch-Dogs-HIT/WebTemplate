@@ -60,7 +60,7 @@
                     <a href="/"><i class="fa fa-dashboard"></i>总览</a>
                 </li>
                 <li>
-                    <a href="/host"><i class="fa fa-desktop"></i>主机监控</a>
+                    <a href="/host"><i class="fa fa-desktop"></i><span class="div_title">主机监控</span></a>
                 </li>
                 <li>
                     <a href="/process"><i class="fa fa-bar-chart-o"></i>进程监控</a>
@@ -81,7 +81,7 @@
         </h1>
         <div id="page-inner">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12" id="host_div">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <div class="btn-group">
@@ -91,7 +91,9 @@
                                 </ul>
                             </div>
                             &nbsp;
-                            <a href="#" class="btn btn-danger" id="delete_host_btn">删除主机</a>
+                            <a href="#" class="btn btn-info" id="update_host_btn">更新主机信息</a>
+                            &nbsp;
+                            <a href="#" class="btn btn-danger" id="delete_host_btn">不再关注主机</a>
 
                         </div>
 
@@ -108,12 +110,13 @@
                                             <ul class="nav nav-tabs">
                                                 <li class="active"><a class="res_title" href="#CPU" data-toggle="tab">CPU</a>
                                                 </li>
-                                                <li class=""><a class="res_title" href="#Memory" data-toggle="tab">Memory</a>
+                                                <li class=""><a class="res_title" href="#Memory"
+                                                                data-toggle="tab">内存</a>
                                                 </li>
-                                                <li class=""><a class="res_title" href="#Net" data-toggle="tab">Net</a>
+                                                <li class=""><a class="res_title" href="#Net" data-toggle="tab">网络</a>
                                                 </li>
                                                 <li class=""><a class="res_title" href="#Disk"
-                                                                data-toggle="tab">Disk</a>
+                                                                data-toggle="tab">磁盘</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
@@ -222,13 +225,13 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            添加新的远程监控主机
+                            <span class="div_title">添加新的远程监控主机</span>
                         </div>
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
-                                        远程主机信息
+                                        <span class="div_title">远程主机信息</span>
                                     </div>
                                     <div class="panel-body">
                                         <div class="form-group">
@@ -252,7 +255,43 @@
                                             <input id="host_type" class="form-control"
                                                    placeholder="远程主机类型(例如,阿里云主机..;可忽略)">
                                             <br/>
-                                            <button id="add_host_btn" type="submit" class="btn btn-default">添加</button>
+                                            <button id="add_host_btn" type="submit" class="btn btn-default"
+                                                    data-toggle="modal" data-target="#myModal">添加
+                                            </button>
+                                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+                                                 aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-hidden="true">&times;
+                                                            </button>
+                                                            <h4 class="modal-title" id="myModalLabel">添加主机提示</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>
+                                                                添加主机中, 请注意右侧文本框中的提示信息以确定是否添加完成. <br/>
+                                                            </p>
+                                                            <p>
+                                                                <span style="color: orange">注意 : 请勿在右侧文本提示完成前刷新页面 <br/><br/></span>
+                                                                <span style="color: grey">流程 :<br/>
+                                                                    1. 使用root用户登录,以保证进程关闭/重启功能的正常运作<br/>
+                                                                    2. 使用root权限执行如下命令即可完成部署 <br/>
+                                                                    <strong style="color: darkgreen">curl http://10.245.146.202:8013/client/ClientSetup.sh | sh</strong><br/>
+                                                                    3. 添加远程客户端后会在默认文件夹下创建一个名为.Watch_Dogs-Client的监控系统目录, 自动设置为隐藏文件夹, 请勿删除<br/>
+                                                                    4. 同时远程Linux主机上会多出一个名为Watch_Dogs-Client.py 的监控进程, 请勿关闭, 否则远程监控功能将失效<br/>
+                                                                    5. 进程将占用8000端口, 请保证端口通畅<br/>
+                                                                </span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default"
+                                                                    data-dismiss="modal">我知道了
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -318,27 +357,34 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                $("#host_div").show();
                 user_all_host_relation = res;
-                if (select_host_id) {// 选择了主机id
-                    for (let host_relation of res["relation"]) {
-                        if (host_relation["host_id"] === select_host_id) {
-                            $("#host_select_btn").text(host_relation["select_str"]);
-                            current_host_id = host_relation["host_id"];
+                if ("error" in user_all_host_relation) {
+                    console.log(user_all_host_relation);
+                    $("#host_div").hide();
+                } else {
+                    console.log(user_all_host_relation);
+                    if (select_host_id) {// 选择了主机id
+                        for (let host_relation of res["relation"]) {
+                            if (host_relation["host_id"] === select_host_id) {
+                                $("#host_select_btn").text(host_relation["select_str"]);
+                                current_host_id = host_relation["host_id"];
+                            }
                         }
+                    } else {// 设置默认主机
+                        $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                        current_host_id = res["relation"][0]["host_id"];
                     }
-                } else {// 设置默认主机
-                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
-                    current_host_id = res["relation"][0]["host_id"];
+                    // 添加选择主机按钮
+                    for (let host_relation of res["relation"])
+                        $("#host_select_id").append("<li><a>" + host_relation["select_str"] + "</a></li>");
+                    // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
+                    if (current_host_id === -1) {
+                        $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                        current_host_id = res["relation"][0]["host_id"];
+                    }
+                    show_host_data(current_host_id);
                 }
-                // 添加选择主机按钮
-                for (let host_relation of res["relation"])
-                    $("#host_select_id").append("<li><a href=\"#\">" + host_relation["select_str"] + "</a></li>");
-                // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
-                if (current_host_id === -1) {
-                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
-                    current_host_id = res["relation"][0]["host_id"];
-                }
-                show_host_data(current_host_id);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -381,6 +427,8 @@
 
     // 展示选中主机数据
     function show_host_data(host_id) {
+        location.replace("#" + current_host_id); // 修改url
+        $("#update_host_btn").attr("href", "#" + current_host_id);
         // 获取主机数据
         $.ajax({
             type: 'get',
@@ -417,13 +465,18 @@
                 // 右侧磁盘信息
                 let disk_info_tbody = $("#disk_info");
                 disk_info_tbody.empty();
-                for (let disk_info of res["host_info"]["disk_stat"]) {
-                    let disk_info_tr = $("<tr></tr>");
-                    for (let info of disk_info) {
-                        disk_info_tr.append(`<td>${info}</td>`);
+                if (res["host_info"]["disk_stat"].length !== 0) {
+                    for (let disk_info of res["host_info"]["disk_stat"]) {
+                        let disk_info_tr = $("<tr></tr>");
+                        for (let info of disk_info) {
+                            disk_info_tr.append(`<td>${info}</td>`);
+                        }
+                        disk_info_tbody.append(disk_info_tr);
                     }
-                    disk_info_tbody.append(disk_info_tr);
+                } else {
+                    disk_info_tbody.append("<tr><td>目前暂无磁盘数据</td></tr>");
                 }
+
 
                 // 下方时间戳
                 $("#record_time").text(res["record_time"]);
@@ -475,7 +528,7 @@
                     }
                 }
                 // 绘图
-                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option, true);
                 // 图标下方文字
                 let cpu_info_ui = $("#cpu_info");
                 // 清空所有子元素
@@ -498,7 +551,7 @@
                     mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
                 }
                 // 绘图
-                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option, true);
                 // 内存下方文字
                 $("#mem_max_size").text(res["host_info"]["mem_M"]);
 
@@ -525,7 +578,7 @@
                     net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option, true);
                 // 网络下方文字
                 $("#net_device").text(res["host_info"]["default_net_device"]);
 
@@ -552,7 +605,7 @@
                     io_table_option.series[1].data.unshift(hi["write_MBs"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option, true);
                 // 磁盘下方文字
                 $("#disk_size").text(res["host_info"]["disk_total_size"]);
 
@@ -587,16 +640,60 @@
         };
         // 添加主机提示信息
         let add_host_log_text = $("#add_host_info");
-        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
+        add_host_log_text.empty();
+        if (request_data.host_ip !== "" && request_data.host_port !== "" &&
+            request_data.host_user !== "" && request_data.host_password !== "") {
             console.log(request_data);
-            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
-        }
+            add_host_log_text.append("向服务器发送添加主机请求, 请勿刷新页面");
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/host",
+                data: JSON.stringify(request_data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    for (let msg of res["result"]) {
+                        console.log(res);
+                        add_host_log_text.append("<br /> " + msg);
+                    }
 
+                },
+                error: function (msg) {
+                    alert("请求超时,请检查后台服务器状态");
+                }
+            });
+        } else {
+            add_host_log_text.append("<br />[错误] 请完整填写主机相关信息");
+        }
     });
 
-    // 删除
+    // 更新主机信息
+    $("#update_host_btn").click(function () {
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/host/" + current_host_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res["status"]) {
+                    show_host_data(current_host_id);
+                } else {
+                    alert("[错误] 远程客户端连接超时, 请登录远程主机检查监控进程是否存在")
+                }
+                console.log("222" + current_host_id);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 删除主机
     $("#delete_host_btn").click(function () {
-        console.log(current_host_id);
         $.ajax({
             type: 'delete',
             async: true,
@@ -605,10 +702,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                alert("删除成功");
+                alert("删除主机成功, 即将刷新页面");
+                setTimeout('window.location.reload()', 200);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });

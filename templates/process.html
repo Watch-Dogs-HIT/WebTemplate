@@ -82,7 +82,7 @@
             <small>远程Linux主机进程监控及管理</small>
         </h1>
         <div id="page-inner">
-            <div class="row">
+            <div class="row" id="process_div">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -111,12 +111,13 @@
                                                 <li class="active"><a class="proc_res_title" href="#CPU"
                                                                       data-toggle="tab">CPU</a>
                                                 </li>
-                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">Memory</a>
+                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">内存</a>
                                                 </li>
                                                 <li class=""><a class="proc_res_title" href="#Net"
-                                                                data-toggle="tab">Net</a>
+                                                                data-toggle="tab" id="net_div">网络</a>
                                                 </li>
-                                                <li class=""><a class="proc_res_title" href="#Disk" data-toggle="tab">Disk</a>
+                                                <li class=""><a class="proc_res_title" href="#Disk"
+                                                                data-toggle="tab">磁盘</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
@@ -230,7 +231,8 @@
                                         <div class="panel-body">
                                             <div class="panel panel-primary">
                                                 <div class="panel-heading" id="log_head">
-                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;中最近100行的内容
+                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;<span
+                                                        id="log_help">中最近100行的内容</span>
                                                     <span style="float:right;text-align:right"><span
                                                             id="log_size">0.0</span>&nbsp;KB</span>
                                                 </div>
@@ -238,7 +240,7 @@
                                                      style="overflow-y:scroll;height:500px;width:100%;overflow-x:hidden;word-break:break-all">
                                                 </div>
                                                 <div class="panel-footer" id="log_footer">
-                                                    最后更新时间 <span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
+                                                    日志文件最后更新于&nbsp;&nbsp;<span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -252,7 +254,7 @@
 
                 </div>
             </div>
-            <div class="row">
+            <div class="row" id="process_manage_div">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -267,6 +269,10 @@
                                     </div>
                                     <div class="panel-body">
                                         <div class="form-group">
+                                            <label for="process_pid_for_update">新进程号</label>
+                                            <input id="process_pid_for_update" class="form-control"
+                                                   placeholder="[重要] 如果之前的进程重启或关闭过,则可以从这里更新成当前最新的进程号即可继续监控">
+                                            <br/>
                                             <label for="process_type">进程类型</label>
                                             <input id="process_type" class="form-control"
                                                    placeholder="current_process_type">
@@ -286,11 +292,14 @@
                                             <input id="process_start_com" class="form-control"
                                                    placeholder="process_start_com">
                                             <br/>
-                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i class="fa fa-edit "></i>&nbsp;更新信息
+                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i
+                                                    class="fa fa-edit "></i>&nbsp;更新信息
                                             </button>&nbsp;&nbsp;
-                                            <button id="process_start_btn" type="submit" class="btn btn-danger"><i class="fa fa-pencil"></i>&nbsp;结束该进程
+                                            <button id="process_close_btn" type="submit" class="btn btn-danger"><i
+                                                    class="fa fa-pencil"></i>&nbsp;结束该进程
                                             </button>&nbsp;&nbsp;
-                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i class=" fa fa-refresh "></i>&nbsp;重启该进程
+                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i
+                                                    class=" fa fa-refresh "></i>&nbsp;重启该进程
                                             </button>
                                         </div>
                                     </div>
@@ -304,38 +313,40 @@
                                     <div class="panel-body">
                                         <div class="form-group">
                                             <div class="form-group">
-                                                <label for="new_process_at_host">进程所在主机</label>
-                                                <select id="new_process_at_host" class="form-control">
-                                                    <option>1</option>
+                                                <label for="new_process_at_host">选择主机</label>
+                                                <select id="new_process_at_host" class="form-control"
+                                                        onchange="select_host()">
+                                                    <option>请在已经添加的主机中选择需要增加的进程所在的主机</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="new_process_pid">选择进程</label>
-                                                <select id="new_process_pid" multiple="" class="form-control">
-                                                    <option>1</option>
-                                                </select>
-                                            </div>
+                                            <label for="new_process">选择进程</label>
+                                            <input id="new_process" class="form-control" placeholder="可以输入关键词快速搜索"
+                                                   list="new_process_pid_list">
+                                            <datalist id="new_process_pid_list">new_process_pid_list
+                                            </datalist>
+                                            <br/>
                                             <label for="new_process_type">进程类型</label>
                                             <input id="new_process_type" class="form-control"
-                                                   placeholder="【可选】描述一下进程具体的类型">
+                                                   placeholder="[可选] 描述一下进程具体的类型">
                                             <br/>
                                             <label for="new_process_comment">进程备注</label>
                                             <input id="new_process_comment" class="form-control"
-                                                   placeholder="【可选】为了便于查找，请给进程添加一个好记的备注">
+                                                   placeholder="[可选] 为了便于查找，请给进程添加一个好记的备注">
                                             <br/>
                                             <label for="new_process_log_path">进程日志地址</label>
                                             <input id="new_process_log_path" class="form-control"
-                                                   placeholder="【可选】进程日志地址，如果有日志就可以在监控页面展示分析">
+                                                   placeholder="[可选] 进程日志地址，如果有日志就可以在监控页面展示分析">
                                             <br/>
                                             <label for="new_process_path">进程所在路径</label>
                                             <input id="new_process_path" class="form-control"
-                                                   placeholder="【可选】进程所在路径，用于重启进程">
+                                                   placeholder="[可选] 进程所在路径，用于重启进程">
                                             <br/>
                                             <label for="new_process_start_com">进程启动命令</label>
                                             <input id="new_process_start_com" class="form-control"
-                                                   placeholder="【可选】进程完整启动命令，用于重启进程">
+                                                   placeholder="[可选] 进程完整启动命令，用于重启进程">
                                             <br/>
-                                            <button id="add_host_btn" type="submit" class="btn btn-info">添加新进程</button>
+                                            <button id="add_process_btn" type="submit" class="btn btn-info">添加新进程
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -378,6 +389,7 @@
     let user_all_process_relation;
     let current_process_id = -1;
     let current_process_at_host_id = -1;
+    let selected_host_id_for_add_process = -1;
 
     // 初始化页面
     $(document).ready(function () {
@@ -394,38 +406,47 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                $("#process_div").show();
                 user_all_process_relation = res;
-                if (select_process_id) {// 选择了主机id
-                    for (let process_relation of res["relation"]) {
-                        if (process_relation["process_id"] === select_process_id) {
-                            $("#process_select_btn").text(process_relation["select_str"]);
-                            current_process_at_host_id = process_relation["host_id"];
-                            current_process_id = process_relation["process_id"];
+                user_all_host_relation = res;
+                if ("error" in user_all_process_relation) {
+                    console.log(user_all_process_relation);
+                    $("#process_div").hide();
+                } else {
+                    if (select_process_id) {// 选择了主机id
+                        for (let process_relation of res["relation"]) {
+                            if (process_relation["process_id"] === select_process_id) {
+                                $("#process_select_btn").text(process_relation["select_str"]);
+                                current_process_at_host_id = process_relation["host_id"];
+                                current_process_id = process_relation["process_id"];
+                            }
                         }
+                    } else {// 设置默认进程
+                        $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                        current_process_id = res["relation"][0]["process_id"];
+                        current_process_at_host_id = res["relation"][0]["host_id"];
                     }
-                } else {// 设置默认进程
-                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                    current_process_id = res["relation"][0]["process_id"];
-                    current_process_at_host_id = res["relation"][0]["host_id"];
-                }
-                // 添加选择进程按钮
-                for (let process_relation of res["relation"]) {
-                    $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
-                }
-                // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
-                if (current_process_id === -1) {
-                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                    current_process_id = res["relation"][0]["process_id"];
-                    current_process_at_host_id = res["relation"][0]["host_id"];
-                }
+                    // 添加选择进程按钮
+                    for (let process_relation of res["relation"]) {
+                        $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
+                    }
+                    // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
+                    if (current_process_id === -1) {
+                        $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                        current_process_id = res["relation"][0]["process_id"];
+                        current_process_at_host_id = res["relation"][0]["host_id"];
+                    }
 
-                show_host_data(current_process_id);
+                    show_process_data(current_process_id);
+                }
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
                 console.log(msg);
             }
         });
+
+        init_add_process_at_host();
     });
 
     // 初始化ECharts图表数据结构
@@ -459,7 +480,7 @@
     }
 
     // 展示选中进程数据
-    function show_host_data(process_id) {
+    function show_process_data(process_id) {
         // 获取进程数据
         $.ajax({
             type: 'get',
@@ -469,6 +490,15 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                // 获取当前资源
+                let now_process_record = res["process_records"][(res["process_records"].length - 1)];
+                // 无法获取网络情况的时候隐藏网络标签页
+                let now_process_record_net = now_process_record["net_upload_kbps"];
+                if (now_process_record_net < 0) {
+                    $("#net_div").hide();
+                } else {
+                    $("#net_div").show();
+                }
                 // 状态提示框
                 if (res["process_info"]["state"] == "X") {
                     $("#process_state").removeClass();
@@ -519,7 +549,7 @@
                 }
 
                 // 绘图
-                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option, true);
 
                 // 内存
                 let mem_table_option = init_echarts_graph_data("进程内存占用 M");
@@ -535,7 +565,7 @@
                     mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
                 }
                 // 绘图
-                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option, true);
                 // 内存下方文字
                 $("#mem_max_size").text(res["host_info"]["mem_M"]);
 
@@ -562,7 +592,7 @@
                     net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option, true);
 
                 // 磁盘
                 let io_table_option = init_echarts_graph_data("主机磁盘读写 MB/s");
@@ -587,16 +617,39 @@
                     io_table_option.series[1].data.unshift(hi["write_MBs"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option, true);
 
                 // 展示日志相关内容
-                show_process_log(current_process_at_host_id, res["process_info"]["log_path"])
+                show_process_log(current_process_at_host_id, res["process_info"]["log_path"]);
+
+                // 更新信息
+                $("#current_process").text($("#process_select_btn").text());
+                $("#process_pid_for_update").attr('placeholder', res["process_info"]["pid"]);
+                $("#process_type").attr('placeholder', res["relation"]["type"]);
+                $("#process_comment").attr('placeholder', res["relation"]["comment"]);
+                $("#process_log_path").attr('placeholder', res["process_info"]["log_path"]);
+                $("#process_path").attr('placeholder', res["process_info"]["process_path"]);
+                $("#process_start_com").attr('placeholder', res["process_info"]["start_com"]);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
                 console.log(msg);
             }
         });
+    }
+
+    // 获取需要更新的数值
+    function get_vaule(input_element) {
+        if (input_element.val() !== "") {
+            return input_element.val()
+        } else {
+            if (input_element.attr('placeholder') === "暂无") {
+                return ""
+            } else {
+                return input_element.attr('placeholder');
+            }
+
+        }
     }
 
     // 获取进程日志
@@ -620,12 +673,11 @@
                             host_id: host_id,
                             path: path
                         });
-
-
                         $("#log_div").hide();
                         alert("日志请求错误, 详细信息请查看控制台日志");
                         console.log(res);
                     } else {// 展示日志内容
+                        $("#log_help").text("  中最新100行的内容");
                         if (res["exist"]) {
                             $("#log_last_update_time").text(res["last_update_time"]);
                             $("#log_full_path_name").text(path);
@@ -678,6 +730,8 @@
                     console.log(res);
                 } else {// 展示日志内容
                     $("#log_text").empty();
+                    console.log("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
+                    $("#log_help").text("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
                     for (let line of res["search_result"]) {
                         $("#log_text").append(line + "<br />")
                     }
@@ -700,26 +754,107 @@
                 break;
             }
         }
-        show_host_data(current_process_id);
+        show_process_data(current_process_id);
     });
 
-    // 添加进程
-    $("#add_host_btn").click(function () {
-        let request_data = {
-            host_ip: $("#host_ip").val(),
-            host_port: $("#host_port").val(),
-            host_user: $("#host_user").val(),
-            host_password: $("#host_password").val(),
-            host_comment: $("#host_comment").val(),
-            host_type: $("#host_type").val()
-        };
-        // 添加主机提示信息
-        let add_host_log_text = $("#add_host_info");
-        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
-            console.log(request_data);
-            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
-        }
+    // 初始化所有能添加进程的主机
+    function init_add_process_at_host() {
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/host/all",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $("#process_manage_div").show();
+                if ("error" in res) {
+                    $("#process_manage_div").hide();
+                } else {
+                    for (let host of res["relation"]) {
+                        $("#new_process_at_host").append("<option>" + host["select_str"] + "</option>")
+                    }
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
 
+    // new_process_at_host select控件处理函数
+    function select_host() {
+        let selected_host_str = $("#new_process_at_host").find("option:selected").text();
+        if (selected_host_str.indexOf(":") !== -1) {// 选择了有效host
+            let select_host_id = selected_host_str.split(" : ")[0].split("#")[1];
+            selected_host_id_for_add_process = select_host_id;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/process/all",
+                data: JSON.stringify({host_id: select_host_id}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    $("#new_process_pid_list").empty();
+                    for (let pid in res) {
+                        $("#new_process_pid_list").append("<option value='" + pid + " | " + res[pid] + "'>");
+                    }
+                },
+                error: function (msg) {
+                    console.log(msg);
+                    alert("请求超时,请检查后台服务器状态");
+                }
+            });
+
+        } else {// 选择了无效host
+            selected_host_id_for_add_process = -1;
+            $("#new_process_pid_list").empty()
+        }
+    }
+
+    // 添加进程
+    $("#add_process_btn").click(function () {
+        if (selected_host_id_for_add_process === -1) {
+            alert("请选择有效的主机");
+        } else {
+            let selected_process_str = $("#new_process").val();
+            if (selected_process_str === "") {
+                alert("请选择需要监控的进程");
+            } else { // 添加逻辑
+                let request_json = {
+                    new_process_pid: selected_process_str.split(" | ")[0],
+                    new_process_at_host_id: selected_host_id_for_add_process,
+                    new_process_name: selected_process_str.split(" | ")[1],
+                    new_process_type: $("#new_process_type").val(),
+                    new_process_comment: $("#new_process_comment").val(),
+                    new_process_log_path: $("#new_process_log_path").val(),
+                    new_process_path: $("#new_process_path").val(),
+                    new_process_start_com: $("#new_process_start_com").val()
+                };
+                $.ajax({
+                    type: 'post',
+                    async: true,
+                    url: "/process",
+                    data: JSON.stringify(request_json),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (res) {
+                        if ("status" in res) {
+                            alert(res["status"]);
+                            setTimeout('window.location.reload()', 1000);
+                        } else {
+                            alert(res["error"])
+                        }
+                    },
+                    error: function (msg) {
+                        console.log(msg);
+                        alert("请求超时,请检查后台服务器状态");
+                    }
+                });
+            }
+        }
     });
 
     // 删除进程
@@ -732,10 +867,92 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                alert("删除成功");
+                alert("删除成功, 页面将在1S后刷新");
+                setTimeout('window.location.reload()', 1000);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
+            }
+        });
+    });
+
+    // 更新进程信息
+    $("#process_update_btn").click(function () {
+        let request_json = {
+            process_pid_for_update: get_vaule($("#process_pid_for_update")),
+            process_type: get_vaule($("#process_type")),
+            process_comment: get_vaule($("#process_comment")),
+            process_log_path: get_vaule($("#process_log_path")),
+            process_path: get_vaule($("#process_path")),
+            process_start_com: get_vaule($("#process_start_com")),
+            process_at_host_id: current_process_at_host_id
+        };
+        console.log(request_json);
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/process/" + current_process_id,
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 关闭进程
+    $("#process_restart_btn").click(function () {
+        alert("进程重启过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "restart"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 重启进程
+    $("#process_close_btn").click(function () {
+        alert("进程关闭过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "close"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });
